@@ -15,10 +15,14 @@ L'infrastructure est découpée en couches de dépendances strictes. Une couche 
 
 ```text
 .
-├── 01-network/         # FONDATIONS : AWS VPC, Subnets (Public/Private), NAT, Route Tables
-├── 02-security/        # SECURITÉ : AWS IAM Roles, Security Groups communs, KMS
-├── 03-data/            # DONNÉES : RDS (Postgres), DynamoDB, S3 Buckets
-└── 04-app-platform/    # APPLICATIONS : ECS/EKS, API Gateway, Load Balancers
+├── .planning/                # Documentation IA (GSD)
+├── terraform/                # Infrastructure as Code
+│   ├── modules/              # Modules Terraform génériques
+│   ├── 00-remote-state/      # FONDATIONS 0 : S3 & DynamoDB State
+│   ├── 01-network/           # FONDATIONS 1 : AWS VPC, Subnets, NAT
+│   ├── 02-security/          # SECURITÉ     : AWS IAM Roles, SG, KMS
+│   ├── 03-data/              # DONNÉES      : RDS, DynamoDB, S3
+│   └── 04-app-platform/      # APPLICATIONS : ECS/EKS, Load Balancers
 ```
 
 ## 🌍 Environnements Isolés

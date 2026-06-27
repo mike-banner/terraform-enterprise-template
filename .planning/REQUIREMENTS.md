@@ -14,8 +14,8 @@
 #### Feature 2: Découpage par Couches (Layered Architecture)
 - **Description:** Structure granulaire empêchant une couche supérieure de casser une couche inférieure.
 - **Acceptance Criteria:**
-  - [ ] Dossier `01-network` avec VPC, Subnets publics/privés et NAT Gateway.
-  - [ ] Dossier `02-security` pour les rôles IAM communs.
+  - [ ] Dossier `terraform/01-network` avec VPC, Subnets publics/privés et NAT Gateway.
+  - [ ] Dossier `terraform/02-security` pour les rôles IAM communs.
   - [ ] Les couches supérieures lisent les outputs via `terraform_remote_state`.
 
 #### Feature 3: Isolation Multi-Environnements

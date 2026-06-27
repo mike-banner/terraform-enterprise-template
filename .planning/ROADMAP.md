@@ -12,7 +12,7 @@
 **Scope:**
 - Création du module Terraform pour le VPC et les sous-réseaux (Public/Private).
 - Implémentation de `dev.tfvars`, `staging.tfvars`, `prod.tfvars`.
-- Application sur la couche `01-network/`.
+- Application sur la couche `terraform/01-network/`.
 
 ## Phase 3.0: Security Layer - Sécurité (02-security)
 **Focus:** Déploiement des fondations IAM et Security Groups transverses.
