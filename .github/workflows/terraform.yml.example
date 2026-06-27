@@ -1,0 +1,91 @@
+name: "Terraform CI/CD"
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+env:
+  # Remplacer par vos credentials ou utiliser OIDC dans un contexte d'entreprise
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_REGION: "eu-west-3"
+
+jobs:
+  terraform:
+    name: "Terraform Format, Validate & Plan"
+    runs-on: ubuntu-latest
+    
+    # Stratégie pour tester plusieurs environnements
+    strategy:
+      matrix:
+        environment: [dev, staging, prod]
+        layer: [00-remote-state, 01-network, 02-security]
+
+    defaults:
+      run:
+        working-directory: ./terraform/${{ matrix.layer }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: "1.5.0" # ou toute version compatible avec "~> 5.0" AWS
+
+      - name: Terraform Format
+        id: fmt
+        run: terraform fmt -check
+        continue-on-error: true
+
+      - name: Terraform Init
+        id: init
+        run: terraform init
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+
+      # Le plan ne s'exécute que pour l'environnement concerné par les variables d'environnement
+      # Si on voulait être très exhaustif, on bouclerait sur les .tfvars
+      - name: Terraform Plan
+        id: plan
+        if: github.event_name == 'pull_request'
+        run: terraform plan -no-color -var-file="${{ matrix.environment }}.tfvars"
+        continue-on-error: true
+
+      # Optionnel: Écrire le plan dans la Pull Request pour lecture facile
+      - name: Update Pull Request
+        uses: actions/github-script@v6
+        if: github.event_name == 'pull_request'
+        env:
+          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+
+            <details><summary>Show Plan pour ${{ matrix.layer }} (${{ matrix.environment }})</summary>
+
+            \`\`\`\n
+            ${process.env.PLAN}
+            \`\`\`
+
+            </details>
+
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
