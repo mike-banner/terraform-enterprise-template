@@ -31,7 +31,7 @@ La couche de sécurité (`02-security`) doit s'attacher au réseau créé dans l
 <action>
 Créer le répertoire `terraform/02-security/`.
 Créer `terraform/02-security/providers.tf` avec le provider `aws` et le backend `s3`.
-Créer `terraform/02-security/variables.tf` avec `aws_region`, `environment`, et `remote_state_bucket`.
+Créer `terraform/02-security/variables.tf` avec `aws_region`, `environment`, `remote_state_bucket`, et `db_port`.
 Créer les fichiers `dev.tfvars`, `staging.tfvars`, `prod.tfvars` avec les variables d'environnement appropriées.
 </action>
 <acceptance_criteria>
@@ -55,7 +55,7 @@ Créer `terraform/02-security/main.tf`.
 Créer 3 ressources `aws_security_group` :
 1. `alb_sg` : Ingress 80 et 443 depuis `0.0.0.0/0`.
 2. `app_sg` : Ingress sur un port applicatif (ex: 3000 ou 8080) avec comme `security_groups` l'ID du `alb_sg`.
-3. `db_sg` : Ingress sur le port `5432` (Postgres) avec comme `security_groups` l'ID du `app_sg`.
+3. `db_sg` : Ingress sur le port défini par `var.db_port` (Postgres) avec comme `security_groups` l'ID du `app_sg`.
 Leur associer le `vpc_id = data.terraform_remote_state.network.outputs.vpc_id`. Egress ouvert à `0.0.0.0/0` pour tous.
 </action>
 <acceptance_criteria>
